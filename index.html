@@ -1,11 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Suresh</title>
-</head>
-<body>
+<html>
 
- Hello Guys!!!!!!
-</body>
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="How to write web application using Angular js : Angular js" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>How to write web application using Angular js</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/gsuresh86/Northiwind_App_Using_AngularJS">View on GitHub</a>
+
+          <h1 id="project_title">How to write web application using Angular js</h1>
+          <h2 id="project_tagline">Angular js</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/gsuresh86/Northiwind_App_Using_AngularJS/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/gsuresh86/Northiwind_App_Using_AngularJS/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a name="welcome-to-angular-js-application" class="anchor" href="#welcome-to-angular-js-application"><span class="octicon octicon-link"></span></a>Welcome to Angular js Application.</h2>
+
+<p>This is a simple application built on top of angular using northwind db data as json.
+Here you don't require any jquery library for DOM manipulation, any handlebar library for template compiling and rendering and any other formatting library for data formatting. All you need is only the angular js libraries.</p>
+
+<p>In this we are going to touch the basic concepts required for writing a good angular application.</p>
+
+<h2>
+<a name="folder-structure" class="anchor" href="#folder-structure"><span class="octicon octicon-link"></span></a>Folder structure</h2>
+
+<pre><code>northwind
+* css
+* data
+* img 
+* js
+* partials
+* index.html
+
+</code></pre>
+
+<h2>
+<a name="lets-start-writing-the-app" class="anchor" href="#lets-start-writing-the-app"><span class="octicon octicon-link"></span></a>Lets start writing the App</h2>
+
+<p>Create a index.html file and include the angular js libraries to it.</p>
+
+<p><img src="http://4.bp.blogspot.com/-6zr8icAo7D8/UujepDYmHYI/AAAAAAAACKE/Yuu18ldI4M4/s1600/js+include.PNG" alt=""></p>
+
+<p>Now create an app.js</p>
+
+<h3>
+<a name="module" class="anchor" href="#module"><span class="octicon octicon-link"></span></a>Module</h3>
+
+<p>Create an angular module for the app. Here we are going to create the app for Norhwind.
+So i created like below.</p>
+
+<pre><code>//Define an angular module for our app
+var NorthwindApp = angular.module('NorthwindApp', ['ngRoute', 'ngResource']); 
+
+</code></pre>
+
+<p>Here i included the dependency required for this app like ngRoute and ngResource. 
+ngRoute will help in creating the routing for your app and ngResource will help in making the http call to and fetch data for your application.</p>
+
+<h3>
+<a name="router" class="anchor" href="#router"><span class="octicon octicon-link"></span></a>Router</h3>
+
+<p>Use the below code for configuring your routes. 
+Here we need the $routeProvider directive fron ngRoute.
+So here each route needs a templateUrl which loads the template for the route and a controller to it</p>
+
+<pre><code>/* Router */
+NorthwindApp.config(['$routeProvider',
+    function($routeProvider) {
+        $routeProvider.
+            when('/employees', {
+                templateUrl: 'partials/employee-list.html',
+                controller: 'EmployeeController'
+            }).
+            when('/customers', {
+                templateUrl: 'partials/customer-list.html',
+                controller: 'CustomerController'
+            }).
+            .....
+            .....
+            .....
+            }). 
+            otherwise({
+                redirectTo: '/customers'
+            });
+    }
+]);
+</code></pre>
+
+<h3>
+<a name="controller" class="anchor" href="#controller"><span class="octicon octicon-link"></span></a>Controller</h3>
+
+<p>Below snippet is the controller for the Employee route.
+Here the $scope act like model for the controller. Whenever the $scope variables get modified 
+template gets the update and rendered. I am using a service called NorthwindService (explained below)
+which will fetch the data for the controller. Once the data received , i am updating the $scope.employees array which in turn update the template and render it.</p>
+
+<pre><code>NorthwindApp.controller('EmployeeController', ['$scope', 'NorthwindService',
+    function($scope, NorthwindService){
+        $scope.employees = [];
+        NorthwindService.getData('data/employees.json')
+            .success(function(response){
+                $scope.employees = response;
+            })
+            .error(function(response){ /*todo error case */ });
+    }
+]);
+</code></pre>
+
+<h3>
+<a name="partialstemplate" class="anchor" href="#partialstemplate"><span class="octicon octicon-link"></span></a>Partials/Template</h3>
+
+<p>This is partial/template for the employee route. Here i used ngRepeat directive to iterate the employees data and render the each employee data</p>
+
+<pre><code>&lt;div class="emp-list"&gt;
+   &lt;div class="" ng-repeat="employee in employees | filter:query | orderBy:orderProp"&gt;
+        &lt;div class="emp-name"&gt;
+            &lt;span class=""&gt;{{employee.FirstName }}&lt;/span&gt;
+            &lt;span class=""&gt;{{employee.LastName}}&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+ &lt;/div&gt;
+</code></pre>
+
+<h3>
+<a name="service" class="anchor" href="#service"><span class="octicon octicon-link"></span></a>Service</h3>
+
+<p>This is service created from angular factory api for fetching data</p>
+
+<pre><code>/* Factory */
+NorthwindApp.factory('NorthwindService', ['$rootScope', '$http',
+    function($rootScope, $http){
+        return {
+            getData: function(url){
+                return $http.get(url);
+            }
+        };
+    }
+]);
+</code></pre>
+
+<h3>
+<a name="bootstrap-your-app" class="anchor" href="#bootstrap-your-app"><span class="octicon octicon-link"></span></a>Bootstrap your app</h3>
+
+<pre><code>&lt;html ng-app="NorthwindApp"&gt;
+</code></pre>
+
+<p>This how finally you can bootstrap your app to html page.</p>
+
+<p>You can download the sample gitub source from the above link and push it a local webserver and test it. You will get a complete picture about the flow.</p>
+
+<h3>
+<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+
+<p><a href="https://github.com/gsuresh86">https://github.com/gsuresh86</a></p>
+
+<h3>
+<a name="support-or-contact" class="anchor" href="#support-or-contact"><span class="octicon octicon-link"></span></a>Support or Contact</h3>
+
+<p>Catch me @ <a href="mailto:gsuresh86@gmail.com">gsuresh86@gmail.com</a></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">How to write web application using Angular js maintained by <a href="https://github.com/gsuresh86">gsuresh86</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
 </html>
